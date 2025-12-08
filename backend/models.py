@@ -7,6 +7,10 @@ class Media(db.Model):
     status = db.Column(db.String(30), nullable=False)  # 'watching', 'completed', 'plan to watch'
     next_release_date = db.Column(db.String(50), nullable=True)
 
+    # NEW FIELDS
+    tmdb_id = db.Column(db.Integer, nullable=True)
+    tmdb_type = db.Column(db.String(10), nullable=True)  # movie or tv
+
     def to_json(self):
         return {
             "id": self.id,
@@ -14,4 +18,6 @@ class Media(db.Model):
             "mediaType": self.media_type,
             "status": self.status,
             "nextReleaseDate": self.next_release_date,
+            "tmdb_id": self.tmdb_id,       # NEW
+            "tmdb_type": self.tmdb_type    # NEW
         }
