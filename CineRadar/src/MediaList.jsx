@@ -42,15 +42,14 @@ const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
     <div>
       <h2>My Watchlist</h2>
       
-      
       <div className="media-grid">
         {media.map((item) => (
           <div
             key={item.id}
             className={`media-card ${getBorderClass(item.status)}`}
             onClick={() => openDetails(item)}
-            style={{ cursor: "pointer" }}
           >
+            {/* Poster */}
             <div className="card-poster">
               {item.poster_path ? (
                 <img
@@ -65,37 +64,42 @@ const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
               )}
             </div>
 
-            <div className="card-content">
-              <h3>{item.title}</h3>
-              
-              <span className={`status-badge ${getStatusClass(item.status)}`}>
-                {item.status}
-              </span>
-              
-              <div className="card-info">
-                <p><strong>Type:</strong> {item.mediaType === 'tv' ? 'TV Show' : 'Movie'}</p>
-                {item.nextReleaseDate && (
-                  <p><strong>Next Release:</strong> {item.nextReleaseDate}</p>
-                )}
-              </div>
+            {/* Overlay that appears on hover */}
+            <div className="card-overlay">
+              <div className="overlay-content">
+                <div className="overlay-info">
+                  <h3>{item.title}</h3>
+                  <span className={`status-badge ${getStatusClass(item.status)}`}>
+                    {item.status}
+                  </span>
+                  <p className="type-text">
+                    <strong>Type:</strong> {item.mediaType === 'tv' ? 'TV Show' : 'Movie'}
+                  </p>
+                  {item.nextReleaseDate && (
+                    <p className="type-text">
+                      <strong>Next:</strong> {item.nextReleaseDate}
+                    </p>
+                  )}
+                </div>
 
-              <div className="card-actions">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateMedia(item);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(item.id);
-                  }}
-                >
-                  Delete
-                </button>
+                <div className="card-actions">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateMedia(item);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(item.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -110,4 +114,4 @@ const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
   );
 };
 
-export default MediaList; 
+export default MediaList;

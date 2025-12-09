@@ -8,20 +8,19 @@
 
 /* Individual media card styling */
 .media-card {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
   position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  height: 320px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Hover effect for card */
 .media-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
 /* Colored left borders for status */
@@ -40,16 +39,20 @@
 /* Poster container */
 .card-poster {
   width: 100%;
-  height: 300px;
-  background-color: #ddd;
-  overflow: hidden;
+  height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .poster-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.media-card:hover .poster-image {
+  transform: scale(1.08);
 }
 
 .poster-placeholder {
@@ -64,18 +67,43 @@
   font-weight: 600;
 }
 
-/* Card content below poster */
-.card-content {
-  padding: 15px;
-  flex: 1;
+/* Overlay that slides up from bottom */
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 70%, transparent 100%);
+  backdrop-filter: blur(3px);
+  padding: 20px 15px 15px;
+  transform: translateY(calc(100% - 50px));
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
 }
 
-.card-content h3 {
-  margin: 0 0 10px 0;
+.media-card:hover .card-overlay {
+  transform: translateY(0);
+}
+
+/* Overlay content */
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.overlay-info {
+  flex: 1;
+}
+
+.overlay-info h3 {
+  color: white;
+  margin: 0 0 8px 0;
   font-size: 16px;
-  color: #333;
   line-height: 1.3;
 }
 
@@ -88,8 +116,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 10px;
-  width: fit-content;
+  margin-bottom: 8px;
 }
 
 .status-watching {
@@ -107,46 +134,43 @@
   color: #333;
 }
 
-/* Card info section */
-.card-info {
-  flex: 1;
-  margin-bottom: 10px;
+.type-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  margin: 4px 0;
 }
 
-.card-info p {
-  margin: 5px 0;
-  font-size: 13px;
-  color: #666;
-}
-
-/* Container for action buttons inside card */
+/* Container for action buttons */
 .card-actions {
-  margin-top: auto;
-  padding-top: 10px;
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  border-top: 1px solid #e0e0e0;
-  padding-top: 10px;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease 0.15s;
+}
+
+.media-card:hover .card-actions {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Edit/Delete button styling */
 .card-actions button {
   flex: 1;
-  padding: 8px 10px;
+  padding: 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   background-color: #007bff;
   color: white;
   font-size: 13px;
-  font-weight: 500;
-  transition: opacity 0.2s, transform 0.1s;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
 .card-actions button:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .card-actions button:active {
@@ -165,11 +189,15 @@
     padding: 15px;
   }
   
-  .card-poster {
-    height: 220px;
+  .media-card {
+    height: 250px;
   }
   
-  .card-content h3 {
+  .overlay-info h3 {
     font-size: 14px;
+  }
+  
+  .type-text {
+    font-size: 11px;
   }
 }
