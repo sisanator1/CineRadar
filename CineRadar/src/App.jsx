@@ -9,7 +9,10 @@ function App() {
   const [media, setMedia] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState({});
-  const [detailsItem, setDetailsItem] = useState(null); // <-- selected item for details page
+  const [detailsItem, setDetailsItem] = useState(null);
+  
+  // NEW: Filter state
+  const [typeFilter, setTypeFilter] = useState('all'); // 'all', 'movie', 'tv'
 
   useEffect(() => {
     fetchMedia();
@@ -26,9 +29,14 @@ function App() {
   const closeModal = () => { setIsModalOpen(false); setCurrentItem({}); };
   const onUpdate = () => { closeModal(); fetchMedia(); };
 
-  // ---- NEW ---- handle clicking a card
   const openDetails = (item) => setDetailsItem(item);
   const closeDetails = () => setDetailsItem(null);
+
+  // NEW: Filter media based on type
+  const filteredMedia = media.filter(item => {
+    if (typeFilter === 'all') return true;
+    return item.mediaType === typeFilter;
+  });
 
   // If a card is selected, show details page
   if (detailsItem) {
@@ -39,11 +47,29 @@ function App() {
   return (
     <>
       <MediaList
-        media={media}
+        media={filteredMedia}
         updateMedia={openEditModal}
         updateCallback={onUpdate}
-        openDetails={openDetails} // pass this to MediaList
+        openDetails={openDetails}
       />
+
+      {/* NEW: Floating Filter Buttons */}
+      <div className="floating-filters">
+        <button 
+          className={`filter-btn ${typeFilter === 'movie' ? 'active' : ''}`}
+          onClick={() => setTypeFilter(typeFilter === 'movie' ? 'all' : 'movie')}
+          title="Movies"
+        >
+          🎬
+        </button>
+        <button 
+          className={`filter-btn ${typeFilter === 'tv' ? 'active' : ''}`}
+          onClick={() => setTypeFilter(typeFilter === 'tv' ? 'all' : 'tv')}
+          title="TV Shows"
+        >
+          📺
+        </button>
+      </div>
 
       <div className="add-button-container">
         <button className="add-button" onClick={openCreateModal}>

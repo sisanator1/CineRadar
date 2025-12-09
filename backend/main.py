@@ -28,10 +28,9 @@ def create_media():
     media_type = data.get('mediaType')
     status = data.get('status')
     next_release_date = data.get('nextReleaseDate')
-
-    # NEW
     tmdb_id = data.get("tmdb_id")
     tmdb_type = data.get("tmdb_type")
+    poster_path = data.get("poster_path")  # NEW
 
     if not title or not media_type or not status:
         return jsonify({"message": "You must include a title, type, and status"}), 400
@@ -42,7 +41,8 @@ def create_media():
         status=status,
         next_release_date=next_release_date,
         tmdb_id=tmdb_id,
-        tmdb_type=tmdb_type
+        tmdb_type=tmdb_type,
+        poster_path=poster_path  # NEW
     )
 
     try:
@@ -67,10 +67,9 @@ def update_media(media_id):
     media.media_type = data.get('mediaType', media.media_type)
     media.status = data.get('status', media.status)
     media.next_release_date = data.get('nextReleaseDate', media.next_release_date)
-
-    # NEW
     media.tmdb_id = data.get("tmdb_id", media.tmdb_id)
     media.tmdb_type = data.get("tmdb_type", media.tmdb_type)
+    media.poster_path = data.get("poster_path", media.poster_path)  # NEW
 
     db.session.commit()
     return jsonify({"message": "Media updated successfully!"}), 200
@@ -91,10 +90,40 @@ def delete_media(media_id):
 # TMDb ROUTES
 # =========================
 
-# Fetch TMDb movie details by TMDb ID
-@app.route("/tmdb/<int:tmdb_id>", methods=["GET"])
-def get_tmdb_details(tmdb_id):
-    url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+# Search TMDb by query (movies or TV)
+@app.route("/tmdb_search/<string:media_type>", methods=["GET"])
+def search_tmdb(media_type):
+    query = request.args.get('query', '')
+    
+    if not query:
+        return jsonify({"results": []}), 200
+    
+    if media_type == "movie":
+        url = "https://api.themoviedb.org/3/search/movie"
+    else:
+        url = "https://api.themoviedb.org/3/search/tv"
+    
+    params = {
+        "api_key": TMDB_API_KEY,
+        "query": query,
+        "language": "en-US"
+    }
+    
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        return jsonify(response.json()), 200
+    return jsonify({"error": "Failed to search TMDb"}), response.status_code
+
+
+# Fetch TMDb details by ID (for both movies and TV shows)
+@app.route("/tmdb/<string:media_type>/<int:tmdb_id>", methods=["GET"])
+def get_tmdb_details(media_type, tmdb_id):
+    if media_type == "movie":
+        url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+    else:
+        url = f"https://api.themoviedb.org/3/tv/{tmdb_id}"
+    
     params = {"api_key": TMDB_API_KEY, "language": "en-US"}
     response = requests.get(url, params=params)
 
@@ -103,7 +132,22 @@ def get_tmdb_details(tmdb_id):
 
     return jsonify(response.json())
 
-# Test search route by movie title
+
+# Get cast/crew credits
+@app.route("/tmdb_credits/<int:tmdb_id>/<string:media_type>", methods=["GET"])
+def get_tmdb_credits(tmdb_id, media_type):
+    if media_type == "movie":
+        url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/credits?api_key={TMDB_API_KEY}"
+    else:
+        url = f"https://api.themoviedb.org/3/tv/{tmdb_id}/credits?api_key={TMDB_API_KEY}"
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        return jsonify(response.json())
+    return jsonify({"error": "Failed to fetch cast"}), response.status_code
+
+
+# Test search route by movie title (legacy - kept for backward compatibility)
 @app.route("/test_tmdb/<string:title>", methods=["GET"])
 def test_tmdb(title):
     url = f"https://api.themoviedb.org/3/search/movie"
@@ -127,14 +171,3 @@ if __name__ == "__main__":
 
     print("==> Starting Flask app...")
     app.run(debug=True)
-@app.route("/tmdb_credits/<int:tmdb_id>/<string:media_type>", methods=["GET"])
-def get_tmdb_credits(tmdb_id, media_type):
-    if media_type == "movie":
-        url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/credits?api_key={TMDB_API_KEY}"
-    else:
-        url = f"https://api.themoviedb.org/3/tv/{tmdb_id}/credits?api_key={TMDB_API_KEY}"
-
-    response = requests.get(url)
-    if response.status_code == 200:
-        return jsonify(response.json())
-    return jsonify({"error": "Failed to fetch cast"}), response.status_code
