@@ -12,7 +12,8 @@ function MediaDetails({ item, goBack }) {
 
     const fetchDetails = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:5000/tmdb/${item.tmdb_type}/${item.tmdb_id}`);
+        const res = await fetch(`https://cineradar.onrender.com/tmdb/${item.tmdb_type}/${item.tmdb_id}`);
+
         const data = await res.json();
         setDetails(data);
       } catch (err) {

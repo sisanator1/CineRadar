@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   const fetchMedia = async () => {
-    const response = await fetch('http://127.0.0.1:5000/media');
+    const response = await fetch('https://cineradar.onrender.com/media');
     const data = await response.json();
     setMedia(data.media);
   };

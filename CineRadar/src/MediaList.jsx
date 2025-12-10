@@ -4,7 +4,10 @@ import './MediaList.css';
 const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
   const onDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this?")) return;
-    const response = await fetch(`http://127.0.0.1:5000/delete_media/${id}`, { method: "DELETE" });
+    const response = await fetch(`https://cineradar.onrender.com/delete_media/${id}`, {
+  method: "DELETE"
+});
+
     if (response.ok) {
       updateCallback();
     } else {

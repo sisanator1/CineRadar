@@ -26,7 +26,7 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
       try {
         const endpoint = mediaType === "movie" ? "movie" : "tv";
         const response = await fetch(
-          `http://127.0.0.1:5000/tmdb_search/${endpoint}?query=${encodeURIComponent(title)}`
+          `https://cineradar.onrender.com/tmdb_search/${endpoint}?query=${encodeURIComponent(title)}`
         );
         const data = await response.json();
         setSearchResults(data.results || []);
@@ -62,7 +62,7 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
       poster_path: selectedPosterPath   // <---- ADDED
     };
 
-    const url = `http://127.0.0.1:5000/${
+    const url = `https://cineradar.onrender.com/${
       updating ? `update_media/${existingMedia.id}` : "create_media"
     }`;
 
