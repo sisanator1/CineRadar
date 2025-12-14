@@ -1,17 +1,35 @@
 import os
 import requests
-from flask import request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from config import app, db
-from models import Media
 from dotenv import load_dotenv
 
-# Enable CORS for frontend access
+from config import (
+    db,
+    SQLALCHEMY_DATABASE_URI,
+    SQLALCHEMY_TRACK_MODIFICATIONS,
+)
+from models import Media
+
+# =========================
+# APP SETUP
+# =========================
+
+load_dotenv()
+
+app = Flask(__name__)
 CORS(app)
 
-# Load environment variables
-load_dotenv()
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = SQLALCHEMY_TRACK_MODIFICATIONS
+
+db.init_app(app)
+
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+
+with app.app_context():
+    db.create_all()
+
 
 # =========================
 # HEALTH CHECK ROUTE
