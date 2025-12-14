@@ -1,16 +1,49 @@
 import os
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from dotenv import load_dotenv
 
 load_dotenv()
 
-db = SQLAlchemy()
+# Initialize Flask app
+app = Flask(__name__)
 
+# CORS configuration - allow credentials for auth
+CORS(app, 
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+
+# Secret key for sessions (IMPORTANT: Add this to Render env variables)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Database configuration (your existing setup)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Render uses postgres:// but SQLAlchemy needs postgresql://
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-SQLALCHEMY_DATABASE_URI = DATABASE_URL or "sqlite:///media.db"
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///media.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Session configuration for production
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-origin
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+
+# Initialize extensions
+db = SQLAlchemy()
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+# User loader for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User
+    return User.query.get(int(user_id))
