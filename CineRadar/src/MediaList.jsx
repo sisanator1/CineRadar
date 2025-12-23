@@ -1,13 +1,16 @@
 import React from 'react';
+import { useAuth } from './AuthContext';
 import './MediaList.css';
 
 const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
+  const { API_URL } = useAuth();
+
   const onDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this?")) return;
-    const response = await fetch(`https://cineradar.onrender.com/delete_media/${id}`, {
-  method: "DELETE"
-});
-
+    const response = await fetch(`${API_URL}/delete_media/${id}`, { 
+      method: "DELETE",
+      credentials: 'include'
+    });
     if (response.ok) {
       updateCallback();
     } else {
@@ -52,7 +55,6 @@ const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
             className={`media-card ${getBorderClass(item.status)}`}
             onClick={() => openDetails(item)}
           >
-            {/* Poster */}
             <div className="card-poster">
               {item.poster_path ? (
                 <img
@@ -67,7 +69,6 @@ const MediaList = ({ media, updateMedia, updateCallback, openDetails }) => {
               )}
             </div>
 
-            {/* Overlay that appears on hover */}
             <div className="card-overlay">
               <div className="overlay-content">
                 <div className="overlay-info">

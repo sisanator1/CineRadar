@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAuth } from './AuthContext';
 
 function MediaDetails({ item, goBack }) {
+  const { API_URL } = useAuth();
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -12,8 +14,7 @@ function MediaDetails({ item, goBack }) {
 
     const fetchDetails = async () => {
       try {
-        const res = await fetch(`https://cineradar.onrender.com/tmdb/${item.tmdb_type}/${item.tmdb_id}`);
-
+        const res = await fetch(`${API_URL}/tmdb/${item.tmdb_type}/${item.tmdb_id}`);
         const data = await res.json();
         setDetails(data);
       } catch (err) {
@@ -24,7 +25,7 @@ function MediaDetails({ item, goBack }) {
     };
 
     fetchDetails();
-  }, [item.tmdb_id, item.tmdb_type]);
+  }, [item.tmdb_id, item.tmdb_type, API_URL]);
 
   return (
     <div className="details-container" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>

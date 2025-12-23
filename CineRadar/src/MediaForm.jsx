@@ -1,20 +1,23 @@
 import { useState, useEffect } from "react";
+import { useAuth } from './AuthContext';
 
 const MediaForm = ({ existingMedia = {}, updateCallback }) => {
+  const { API_URL } = useAuth();
+  
   const [title, setTitle] = useState(existingMedia.title || "");
   const [mediaType, setMediaType] = useState(existingMedia.mediaType || "movie");
   const [status, setStatus] = useState(existingMedia.status || "watching");
   const [nextReleaseDate, setNextReleaseDate] = useState(existingMedia.nextReleaseDate || "");
-
+  
   // TMDb search state
   const [searchResults, setSearchResults] = useState([]);
   const [selectedTmdbId, setSelectedTmdbId] = useState(existingMedia.tmdb_id || null);
-  const [selectedPosterPath, setSelectedPosterPath] = useState(existingMedia.poster_path || null);   // <-- ADDED
+  const [selectedPosterPath, setSelectedPosterPath] = useState(existingMedia.poster_path || null);
   const [isSearching, setIsSearching] = useState(false);
 
   const updating = Object.entries(existingMedia).length !== 0;
 
-  // Search TMDb when title changes (debounced)
+  // Search TMDb when title changes (with debounce)
   useEffect(() => {
     if (!title || title.length < 3) {
       setSearchResults([]);
@@ -26,7 +29,7 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
       try {
         const endpoint = mediaType === "movie" ? "movie" : "tv";
         const response = await fetch(
-          `https://cineradar.onrender.com/tmdb_search/${endpoint}?query=${encodeURIComponent(title)}`
+          `${API_URL}/tmdb_search/${endpoint}?query=${encodeURIComponent(title)}`
         );
         const data = await response.json();
         setSearchResults(data.results || []);
@@ -39,17 +42,15 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [title, mediaType]);
+  }, [title, mediaType, API_URL]);
 
-  // ---- UPDATED HANDLER ----
   const handleSelectTmdb = (result) => {
     setSelectedTmdbId(result.id);
     setTitle(result.title || result.name);
-    setSelectedPosterPath(result.poster_path);  // <---- ADDED
+    setSelectedPosterPath(result.poster_path);
     setSearchResults([]);
   };
 
-  // ---- UPDATED SUBMIT ----
   const onSubmit = async (e) => {
     e.preventDefault();
     const data = {
@@ -59,16 +60,17 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
       nextReleaseDate,
       tmdb_id: selectedTmdbId,
       tmdb_type: mediaType,
-      poster_path: selectedPosterPath   // <---- ADDED
+      poster_path: selectedPosterPath
     };
 
-    const url = `https://cineradar.onrender.com/${
+    const url = `${API_URL}/${
       updating ? `update_media/${existingMedia.id}` : "create_media"
     }`;
 
     const response = await fetch(url, {
       method: updating ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -99,61 +101,45 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Search for a movie or TV show..."
         />
-
-        {isSearching && (
-          <p style={{ fontSize: "12px", color: "#666", marginTop: "5px" }}>
-            Searching TMDb...
-          </p>
-        )}
-
+        
+        {isSearching && <p style={{fontSize: '12px', color: '#666', marginTop: '5px'}}>Searching TMDb...</p>}
         {searchResults.length > 0 && (
-          <div
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              marginTop: "5px",
-              maxHeight: "200px",
-              overflowY: "auto",
-              backgroundColor: "white",
-              position: "relative",
-              zIndex: 10,
-            }}
-          >
+          <div style={{
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            marginTop: '5px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            backgroundColor: 'white',
+            position: 'relative',
+            zIndex: 10
+          }}>
             {searchResults.slice(0, 5).map((result) => (
               <div
                 key={result.id}
                 onClick={() => handleSelectTmdb(result)}
                 style={{
-                  padding: "8px",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  transition: "background-color 0.2s",
+                  padding: '8px',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid #eee',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  transition: 'background-color 0.2s'
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#f0f0f0")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "white")
-                }
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
               >
                 {result.poster_path && (
                   <img
                     src={`https://image.tmdb.org/t/p/w92${result.poster_path}`}
                     alt=""
-                    style={{
-                      width: "30px",
-                      height: "45px",
-                      objectFit: "cover",
-                      borderRadius: "2px",
-                    }}
+                    style={{ width: '30px', height: '45px', objectFit: 'cover', borderRadius: '2px' }}
                   />
                 )}
                 <div style={{ flex: 1 }}>
                   <strong>{result.title || result.name}</strong>
-                  <div style={{ fontSize: "12px", color: "#666" }}>
+                  <div style={{fontSize: '12px', color: '#666'}}>
                     {result.release_date || result.first_air_date}
                   </div>
                 </div>
@@ -161,9 +147,9 @@ const MediaForm = ({ existingMedia = {}, updateCallback }) => {
             ))}
           </div>
         )}
-
+        
         {selectedTmdbId && (
-          <p style={{ fontSize: "12px", color: "green", marginTop: "5px" }}>
+          <p style={{fontSize: '12px', color: 'green', marginTop: '5px'}}>
             ✓ TMDb match found (ID: {selectedTmdbId})
           </p>
         )}

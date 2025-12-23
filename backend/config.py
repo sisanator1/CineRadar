@@ -6,6 +6,9 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from dotenv import load_dotenv
 
+
+
+SECRET_KEY = os.getenv('SECRET_KEY')
 load_dotenv()
 
 # Initialize Flask app

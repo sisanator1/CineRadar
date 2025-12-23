@@ -8,6 +8,8 @@ import re
 from config import app, db, bcrypt
 from models import Media, User
 
+
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 # =========================
 # APP SETUP
 # =========================
