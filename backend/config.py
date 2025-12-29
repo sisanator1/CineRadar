@@ -4,48 +4,69 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from dotenv import load_dotenv
 
-
-
-SECRET_KEY = os.getenv('SECRET_KEY')
 load_dotenv()
 
-# Initialize Flask app
+# --------------------
+# Flask app
+# --------------------
 app = Flask(__name__)
 
-# CORS configuration - allow credentials for auth
-CORS(app, 
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+# --------------------
+# CORS (required for auth cookies)
+# --------------------
+CORS(
+    app,
+    supports_credentials=True,
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+)
 
-# Secret key for sessions (IMPORTANT: Add this to Render env variables)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+# --------------------
+# Security
+# --------------------
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 
-# Database configuration (your existing setup)
+# --------------------
+# Database
+# --------------------
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Render uses postgres:// but SQLAlchemy needs postgresql://
+# Render compatibility
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///media.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Session configuration for production
-app.config['SESSION_COOKIE_SECURE'] = True  # Only send over HTTPS
-app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'  # Allow cross-origin
-app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+# --------------------
+# Session cookies (production safe)
+# --------------------
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["PERMANENT_SESSION_LIFETIME"] = 86400
 
-# Initialize extensions
+# --------------------
+# Extensions (FACTORY STYLE — IMPORTANT)
+# --------------------
 db = SQLAlchemy()
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+bcrypt = Bcrypt()
+login_manager = LoginManager()
 
-# User loader for Flask-Login
+db.init_app(app)
+bcrypt.init_app(app)
+login_manager.init_app(app)
+
+migrate = Migrate(app, db)
+
+login_manager.login_view = "login"
+
+# --------------------
+# User loader
+# --------------------
 @login_manager.user_loader
 def load_user(user_id):
     from models import User
