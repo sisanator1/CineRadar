@@ -11,11 +11,15 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# ✅ UPDATED CORS - Add origins explicitly
 CORS(
     app,
+    origins=["https://sisanator1.github.io", "http://localhost:5173", "http://127.0.0.1:5173"],
     supports_credentials=True,
     allow_headers=["Content-Type", "Authorization"],
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    expose_headers=["Content-Type"],
+    max_age=3600
 )
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
@@ -26,7 +30,6 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///media.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
@@ -35,10 +38,8 @@ app.config["PERMANENT_SESSION_LIFETIME"] = 86400
 # 🔑 Proper extension initialization
 db = SQLAlchemy()
 db.init_app(app)
-
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
