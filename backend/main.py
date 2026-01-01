@@ -271,6 +271,4 @@ def get_tmdb_credits(tmdb_id, media_type):
 # RUN APP LOCALLY
 # =========================
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
