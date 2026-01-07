@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from './AuthContext';  // ✅ FIXED
+import { useAuth } from './AuthContext';  
 import './Auth.css';
 
 function Signup({ onSwitchToLogin }) {
@@ -10,7 +10,7 @@ function Signup({ onSwitchToLogin }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { signup } = useAuth();  // ✅ FIXED
+  const { signup } = useAuth();  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

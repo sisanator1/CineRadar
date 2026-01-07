@@ -10,15 +10,15 @@ from models import Media, User
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-# =========================
+
 # APP SETUP
-# =========================
+
 
 load_dotenv()
 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
-# ===== ✅ ADD THIS SECTION =====
+
 @app.after_request
 def after_request(response):
     """Handle CORS for all responses"""
@@ -35,11 +35,11 @@ def after_request(response):
 def handle_options(path):
     """Handle preflight OPTIONS requests"""
     return '', 204
-# ===== END OF NEW SECTION =====
 
-# =========================
+
+
 # HELPER FUNCTIONS
-# =========================
+
 
 def validate_email(email):
     """Basic email validation"""
@@ -50,16 +50,16 @@ def validate_password(password):
     """Password must be at least 8 characters"""
     return len(password) >= 8
 
-# =========================
+
 # HEALTH CHECK ROUTE
-# =========================
+
 @app.route("/")
 def home():
     return {"message": "Backend is running"}
 
-# =========================
+
 # AUTH ROUTES
-# =========================
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -143,9 +143,9 @@ def check_auth():
         }), 200
     return jsonify({"authenticated": False}), 200
 
-# =========================
+
 # MEDIA CRUD ROUTES (Now Protected)
-# =========================
+
 
 @app.route('/media', methods=['GET'])
 @login_required
@@ -221,9 +221,9 @@ def delete_media(media_id):
     db.session.commit()
     return jsonify({"message": "Media deleted successfully!"}), 200
 
-# =========================
+
 # TMDB ROUTES (Public - No auth needed)
-# =========================
+
 
 @app.route("/tmdb_search/<string:media_type>", methods=["GET"])
 def search_tmdb(media_type):

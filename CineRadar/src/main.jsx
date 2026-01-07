@@ -4,7 +4,7 @@ import { AuthProvider } from "./AuthContext.jsx";
 import App from "./App.jsx";
 import "./index.css";
 
-/* 🔴 TEMPORARY MOBILE DEBUG OVERLAY */
+/*  TEMPORARY MOBILE DEBUG OVERLAY */
 window.onerror = function (msg, src, line, col, err) {
   alert(
     "JS ERROR:\n" +
@@ -12,7 +12,7 @@ window.onerror = function (msg, src, line, col, err) {
     "Line: " + line
   );
 };
-/* 🔴 END DEBUG OVERLAY */
+/*  END DEBUG OVERLAY */
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

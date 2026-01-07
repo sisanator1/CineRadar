@@ -1,8 +1,8 @@
 from config import app, db
 from models import *
-import main  # This imports all your routes!
+import main  # This imports all  routes!
 
-# ✅ Create tables when the module is imported (runs with Gunicorn)
+# Create tables when the module is imported 
 with app.app_context():
     try:
         db.create_all()
