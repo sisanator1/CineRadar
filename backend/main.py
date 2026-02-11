@@ -19,22 +19,7 @@ load_dotenv()
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 
-@app.after_request
-def after_request(response):
-    """Handle CORS for all responses"""
-    origin = request.headers.get('Origin')
-    if origin in ['https://sisanator1.github.io', 'http://localhost:5173', 'http://127.0.0.1:5173']:
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    return response
 
-# Handle OPTIONS requests explicitly
-@app.route('/<path:path>', methods=['OPTIONS'])
-def handle_options(path):
-    """Handle preflight OPTIONS requests"""
-    return '', 204
 
 
 

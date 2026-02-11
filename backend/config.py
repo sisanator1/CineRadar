@@ -17,9 +17,10 @@ app = Flask(__name__)
 CORS(
     app,
     origins=[
-        "https://sisanator1.github.io",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "https://cineradar.xyz",  # ← New domain
+        "https://www.cineradar.xyz",  # ← Include www version
+        "http://localhost:5173",  # ← Keep for local dev
+        "http://127.0.0.1:5173"  # ← Keep for local dev
     ],
     supports_credentials=True,
     allow_headers=["Content-Type", "Authorization"],
@@ -49,12 +50,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="None",
+    SESSION_COOKIE_SAMESITE="Lax",  # Changed from "None"
+    SESSION_COOKIE_DOMAIN=".cineradar.xyz",  # Added this to allow cookies on subdomains
     SESSION_PERMANENT=True,
     PERMANENT_SESSION_LIFETIME=86400
 )
 
-# =========================
+
 # EXTENSIONS
 # =========================
 db = SQLAlchemy()
