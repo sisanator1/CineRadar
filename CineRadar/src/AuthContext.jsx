@@ -6,10 +6,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://127.0.0.1:5000"
-    : "https://cineradar.onrender.com"; //Render backend URL
+ const API_URL = import.meta.env.PROD 
+  ? "https://api.cineradar.xyz"
+  : "http://127.0.0.1:5000";
 
   // use this to Check if user is already logged in on mount
   useEffect(() => {
